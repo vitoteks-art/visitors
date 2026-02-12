@@ -1,0 +1,21 @@
+Table found: visitors
+Table found: notifications
+Table found: sqlite_sequence
+Table found: users
+--- USER DETAILS ---
+ID: 1
+Name: Victor Olayemi
+Email: vitotek@gmail.com
+-------------------
+ID: 2
+Name: Admin User
+Email: admin@gatekeeper.com
+-------------------
+ID: 3
+Name: Reception User
+Email: reception@gatekeeper.com
+-------------------
+ID: 4
+Name: John Host
+Email: john@gatekeeper.com
+-------------------

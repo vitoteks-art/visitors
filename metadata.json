@@ -1,0 +1,7 @@
+{
+  "name": "GateKeeper VMS",
+  "description": "Enterprise-grade visitor management system with real-time dashboards, host approval workflows, and analytics.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

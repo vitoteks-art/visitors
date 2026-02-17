@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Eraser } from 'lucide-react';
 
 interface SignaturePadProps {
@@ -6,162 +6,182 @@ interface SignaturePadProps {
     defaultValue?: string | null;
 }
 
+type Point = { x: number; y: number; move: boolean };
+
 const SignaturePad: React.FC<SignaturePadProps> = ({ onSave, defaultValue }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
+
     const [isDrawing, setIsDrawing] = useState(false);
     const [hasSignature, setHasSignature] = useState(false);
-    const lastPos = useRef({ x: 0, y: 0 });
+
+    // Keep points in CSS-pixel coordinates so resizing/redrawing is stable.
+    const pointsRef = useRef<Point[]>([]);
     const dprRef = useRef<number>(1);
+    const imageFallbackRef = useRef<string | null>(null); // used when defaultValue is provided (no points)
 
-    useEffect(() => {
-        const handleResize = () => {
-            const canvas = canvasRef.current;
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-            if (!ctx) return;
+    const applyCanvasSizing = useCallback(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
 
-            const rect = canvas.getBoundingClientRect();
-            const dpr = window.devicePixelRatio || 1;
-            dprRef.current = dpr;
+        const rect = canvas.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        dprRef.current = dpr;
 
-            // Step 1: Save existing content if any (in CSS pixels)
-            let tempImage: string | null = null;
-            if (canvas.width > 0 && canvas.height > 0) {
-                try {
-                    tempImage = canvas.toDataURL('image/png');
-                } catch {
-                    tempImage = null;
-                }
+        canvas.width = Math.max(1, Math.floor(rect.width * dpr));
+        canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+
+        // Reset transform and apply DPR transform so we can draw in CSS pixels.
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        ctx.strokeStyle = '#1e293b';
+        ctx.lineWidth = 2.5;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        // Clear in CSS pixel space.
+        ctx.clearRect(0, 0, rect.width, rect.height);
+
+        // Redraw existing signature.
+        if (pointsRef.current.length > 0) {
+            ctx.beginPath();
+            for (const p of pointsRef.current) {
+                if (p.move) ctx.moveTo(p.x, p.y);
+                else ctx.lineTo(p.x, p.y);
             }
-
-            // Step 2: Update internal resolution (device pixels)
-            canvas.width = Math.max(1, Math.floor(rect.width * dpr));
-            canvas.height = Math.max(1, Math.floor(rect.height * dpr));
-
-            // IMPORTANT: reset transform before applying DPR transform (prevents cumulative scaling)
-            ctx.setTransform(1, 0, 0, 1, 0, 0);
-            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-            // Step 3: Re-apply styles (as resize clears them)
-            ctx.strokeStyle = '#1e293b';
-            ctx.lineWidth = 2.5;
-            ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
-
-            // Step 4: Restore content if it existed
-            if (tempImage) {
-                const img = new Image();
-                img.onload = () => {
-                    // draw into CSS pixel space (because of DPR transform)
-                    ctx.drawImage(img, 0, 0, rect.width, rect.height);
-                };
-                img.src = tempImage;
-            }
-        };
-
-        handleResize();
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
-
-    // Load initial defaultValue only once when canvas is ready
-    useEffect(() => {
-        if (defaultValue && !hasSignature) {
-            const canvas = canvasRef.current;
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-            if (!ctx || !ctx.canvas.width) return;
-
-            const rect = canvas.getBoundingClientRect();
-            const dpr = dprRef.current || (window.devicePixelRatio || 1);
-
-            // Ensure transform is correct before drawing defaultValue
-            ctx.setTransform(1, 0, 0, 1, 0, 0);
-            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
+            ctx.stroke();
+        } else if (imageFallbackRef.current) {
             const img = new Image();
             img.onload = () => ctx.drawImage(img, 0, 0, rect.width, rect.height);
-            img.src = defaultValue;
-            setHasSignature(true);
+            img.src = imageFallbackRef.current;
         }
-    }, [defaultValue, hasSignature]);
+    }, []);
 
-    const getCoordinates = (e: React.MouseEvent | React.TouchEvent | MouseEvent | TouchEvent) => {
+    useEffect(() => {
+        applyCanvasSizing();
+        window.addEventListener('resize', applyCanvasSizing);
+        return () => window.removeEventListener('resize', applyCanvasSizing);
+    }, [applyCanvasSizing]);
+
+    useEffect(() => {
+        if (defaultValue && !hasSignature) {
+            imageFallbackRef.current = defaultValue;
+            setHasSignature(true);
+            // draw it
+            applyCanvasSizing();
+        }
+    }, [defaultValue, hasSignature, applyCanvasSizing]);
+
+    const getPointFromPointerEvent = (e: React.PointerEvent<HTMLCanvasElement>) => {
         const canvas = canvasRef.current;
         if (!canvas) return { x: 0, y: 0 };
         const rect = canvas.getBoundingClientRect();
-
-        let clientX, clientY;
-        if ('touches' in e) {
-            clientX = e.touches[0].clientX;
-            clientY = e.touches[0].clientY;
-        } else {
-            clientX = (e as MouseEvent).clientX;
-            clientY = (e as MouseEvent).clientY;
-        }
-
         return {
-            x: clientX - rect.left,
-            y: clientY - rect.top
+            x: e.clientX - rect.left,
+            y: e.clientY - rect.top
         };
     };
 
-    const startDrawing = (e: React.MouseEvent | React.TouchEvent) => {
-        const pos = getCoordinates(e);
-        lastPos.current = pos;
-        setIsDrawing(true);
-
-        // Prevent page scroll while signing (especially on mobile)
-        if ('touches' in e && e.cancelable) e.preventDefault();
-    };
-
-    const stopDrawing = () => {
-        if (!isDrawing) return;
-        setIsDrawing(false);
+    const finishAndSave = useCallback(() => {
         const canvas = canvasRef.current;
-        if (canvas) {
-            const dataUrl = canvas.toDataURL('image/png');
-            onSave(dataUrl);
-            setHasSignature(true);
-        }
+        if (!canvas) return;
+        const url = canvas.toDataURL('image/png');
+        onSave(url);
+        setHasSignature(true);
+    }, [onSave]);
+
+    const onPointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
+        // Left mouse button only; for touch/pen pointerType isn't mouse.
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
+
+        // If we had a default image, user is now drawing a real signature.
+        imageFallbackRef.current = null;
+        pointsRef.current = pointsRef.current.length ? pointsRef.current : [];
+
+        const canvas = canvasRef.current;
+        if (canvas) canvas.setPointerCapture(e.pointerId);
+
+        const p = getPointFromPointerEvent(e);
+        pointsRef.current.push({ ...p, move: true });
+
+        setIsDrawing(true);
     };
 
-    const draw = (e: React.MouseEvent | React.TouchEvent) => {
+    const onPointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
         if (!isDrawing) return;
-        if (e.cancelable) e.preventDefault();
 
         const canvas = canvasRef.current;
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
 
-        const { x, y } = getCoordinates(e);
+        // Use coalesced events when available (much smoother on touch/pen)
+        // https://developer.mozilla.org/en-US/docs/Web/API/PointerEvent/getCoalescedEvents
+        const events: Array<{ clientX: number; clientY: number }> =
+            typeof (e as any).getCoalescedEvents === 'function'
+                ? (e as any).getCoalescedEvents()
+                : [e];
 
-        ctx.beginPath();
-        ctx.moveTo(lastPos.current.x, lastPos.current.y);
-        ctx.lineTo(x, y);
-        ctx.stroke();
+        for (const ev of events) {
+            const rect = canvas.getBoundingClientRect();
+            const p = {
+                x: ev.clientX - rect.left,
+                y: ev.clientY - rect.top,
+            };
+            const prev = pointsRef.current[pointsRef.current.length - 1];
 
-        lastPos.current = { x, y };
+            // Draw immediately (we are already in CSS pixel space).
+            ctx.beginPath();
+            ctx.moveTo(prev?.x ?? p.x, prev?.y ?? p.y);
+            ctx.lineTo(p.x, p.y);
+            ctx.stroke();
+
+            pointsRef.current.push({ ...p, move: false });
+        }
+    };
+
+    const onPointerUp = (e: React.PointerEvent<HTMLCanvasElement>) => {
+        if (!isDrawing) return;
+        setIsDrawing(false);
+
+        const canvas = canvasRef.current;
+        if (canvas) {
+            try {
+                canvas.releasePointerCapture(e.pointerId);
+            } catch {
+                // ignore
+            }
+        }
+
+        finishAndSave();
+    };
+
+    const onPointerCancel = () => {
+        if (!isDrawing) return;
+        setIsDrawing(false);
+        finishAndSave();
     };
 
     const clear = () => {
+        pointsRef.current = [];
+        imageFallbackRef.current = null;
+
         const canvas = canvasRef.current;
-        if (canvas) {
-            const ctx = canvas.getContext('2d');
-            if (ctx) {
-                // Clear in device pixel space
-                ctx.setTransform(1, 0, 0, 1, 0, 0);
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
 
-                // Restore DPR transform for continued drawing
-                const dpr = dprRef.current || (window.devicePixelRatio || 1);
-                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        const rect = canvas.getBoundingClientRect();
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const dpr = dprRef.current || (window.devicePixelRatio || 1);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0, 0, rect.width, rect.height);
 
-                onSave(null);
-                setHasSignature(false);
-            }
-        }
+        onSave(null);
+        setHasSignature(false);
     };
 
     return (
@@ -169,14 +189,12 @@ const SignaturePad: React.FC<SignaturePadProps> = ({ onSave, defaultValue }) => 
             <div className="relative border-2 border-gray-200 dark:border-gray-700 rounded-xl bg-white overflow-hidden h-40">
                 <canvas
                     ref={canvasRef}
-                    className="w-full h-full cursor-crosshair touch-none"
-                    onMouseDown={startDrawing}
-                    onMouseUp={stopDrawing}
-                    onMouseOut={stopDrawing}
-                    onMouseMove={draw}
-                    onTouchStart={startDrawing}
-                    onTouchEnd={stopDrawing}
-                    onTouchMove={draw}
+                    className="w-full h-full cursor-crosshair"
+                    style={{ touchAction: 'none' }}
+                    onPointerDown={onPointerDown}
+                    onPointerMove={onPointerMove}
+                    onPointerUp={onPointerUp}
+                    onPointerCancel={onPointerCancel}
                 />
                 <button
                     type="button"

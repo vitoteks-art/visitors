@@ -18,7 +18,7 @@ const KioskLanding: React.FC<KioskLandingProps> = ({ onSelectAction }) => {
                         <Building2 className="h-10 w-10 text-white" />
                     </div>
                     <h1 className="text-5xl font-black text-gray-900 dark:text-white tracking-tight">
-                        Welcome to <span className="text-brand-600">TechCorp</span>
+                        Welcome to <span className="text-brand-600">Kosmos Energy</span>
                     </h1>
                     <p className="text-xl text-gray-500 dark:text-gray-400 font-medium">Please select an action to proceed with your visit.</p>
                 </div>

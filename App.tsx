@@ -185,7 +185,8 @@ const MainApp: React.FC = () => {
               <Building2 className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h1 className="text-lg font-bold text-gray-900 dark:text-white leading-tight">VisitorConnect</h1>
+              <h1 className="text-lg font-bold text-gray-900 dark:text-white leading-tight">Kosmos Energy VMS</h1>
+              <p className="text-xs text-gray-500 dark:text-gray-400 leading-tight">powered Vitotek Systems</p>
               <p className="text-xs text-gray-500 dark:text-gray-400">Reception Pro</p>
             </div>
           </div>

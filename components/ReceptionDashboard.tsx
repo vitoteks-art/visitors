@@ -217,16 +217,6 @@ const ReceptionDashboard: React.FC = () => {
                                  )}
                               </div>
                            </div>
-                           <div>
-                              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Electronic Signature</label>
-                              <div className="h-32 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-700 flex items-center justify-center p-4">
-                                 {selectedVisitor.signature ? (
-                                    <img src={selectedVisitor.signature} className="max-h-full dark:invert" alt="Signature" />
-                                 ) : (
-                                    <div className="text-gray-400 italic text-sm">No signature captured</div>
-                                 )}
-                              </div>
-                           </div>
                         </div>
 
                         <div className="space-y-6">

@@ -1,4 +1,4 @@
--- GateKeeper VMS MySQL Schema
+-- Kosmos Energy VMS powered Vitotek Systems - MySQL Schema
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;

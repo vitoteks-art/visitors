@@ -21,7 +21,6 @@ export interface Visitor {
   checkOutTime?: string; // ISO String
   approvalTime?: string; // ISO String
   badgeNumber?: string;
-  signature?: string;
   inviteCode?: string;
   status: VisitorStatus;
   created_at?: string;

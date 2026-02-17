@@ -56,7 +56,7 @@ const CheckOutKiosk: React.FC<CheckOutKioskProps> = ({ onCancel, onComplete }) =
                 </div>
                 <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">You're All Set!</h2>
                 <p className="text-xl text-gray-500 dark:text-gray-400">
-                    Thank you for visiting <span className="text-brand-600 font-bold">TechCorp</span>.<br />
+                    Thank you for visiting <span className="text-brand-600 font-bold">Kosmos Energy</span>.<br />
                     We've recorded your departure at {new Date().toLocaleTimeString()}.
                 </p>
                 <p className="mt-8 text-sm text-gray-400">Returning to home screen...</p>

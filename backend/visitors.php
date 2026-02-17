@@ -75,8 +75,8 @@ if ($method === 'GET') {
              echo json_encode(['success' => true, 'message' => 'Updated']);
         } else {
             // Insert New
-            $sql = "INSERT INTO visitors (id, fullName, email, phoneNumber, company, purpose, hostName, hostDepartment, photoUrl, signature, inviteCode, idType, idNumber, checkInTime, status) 
-                    VALUES (:id, :fullName, :email, :phoneNumber, :company, :purpose, :hostName, :hostDepartment, :photoUrl, :signature, :inviteCode, :idType, :idNumber, :checkInTime, :status)";
+            $sql = "INSERT INTO visitors (id, fullName, email, phoneNumber, company, purpose, hostName, hostDepartment, photoUrl, inviteCode, idType, idNumber, checkInTime, status) 
+                    VALUES (:id, :fullName, :email, :phoneNumber, :company, :purpose, :hostName, :hostDepartment, :photoUrl, :inviteCode, :idType, :idNumber, :checkInTime, :status)";
             
             $stmt = $conn->prepare($sql);
             $stmt->execute([
@@ -89,8 +89,7 @@ if ($method === 'GET') {
                 ':hostName' => $data['hostName'],
                 ':hostDepartment' => $data['hostDepartment'],
                 ':photoUrl' => $data['photoUrl'] ?? '',
-                ':signature' => $data['signature'] ?? '',
-                ':inviteCode' => $data['inviteCode'] ?? null,
+                                ':inviteCode' => $data['inviteCode'] ?? null,
                 ':idType' => $data['idType'],
                 ':idNumber' => $data['idNumber'],
                 ':checkInTime' => $data['checkInTime'],

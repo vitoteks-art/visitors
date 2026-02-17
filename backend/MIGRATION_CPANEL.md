@@ -1,6 +1,6 @@
 # MySQL & SQLite Dual-Mode Support
 
-The GateKeeper VMS now automatically detects your environment:
+Kosmos Energy VMS powered Vitotek Systems now automatically detects your environment:
 - **Local (localhost)**: Uses **SQLite** (`database.sqlite`) for easy development.
 - **Production (cPanel)**: Uses **MySQL** for reliability and performance.
 

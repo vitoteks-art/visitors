@@ -2,7 +2,6 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { Camera, User as UserIcon, Building, Briefcase, Phone, Video, ArrowRight, CheckCircle2, Globe, HelpCircle, QrCode, X } from 'lucide-react';
 import { Visitor, VisitorStatus, User } from '../types';
 import { saveVisitor, getVisitors, getVisitorByCode } from '../services/storage';
-import SignaturePad from './SignaturePad';
 import { getStuffList } from '../services/auth';
 
 interface CheckInFormProps {
@@ -16,7 +15,6 @@ const CheckInForm: React.FC<CheckInFormProps> = ({ onComplete }) => {
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [agreed, setAgreed] = useState(false);
-  const [signature, setSignature] = useState<string | null>(null);
   const [expressCode, setExpressCode] = useState('');
   const [isExpressing, setIsExpressing] = useState(false);
 
@@ -131,7 +129,6 @@ const CheckInForm: React.FC<CheckInFormProps> = ({ onComplete }) => {
       id: crypto.randomUUID(),
       ...formData,
       photoUrl: photo || undefined,
-      signature: signature || undefined,
       checkInTime: new Date().toISOString(),
       status: VisitorStatus.PENDING,
     };
@@ -170,8 +167,8 @@ const CheckInForm: React.FC<CheckInFormProps> = ({ onComplete }) => {
             <Building className="h-8 w-8 text-white" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white leading-none">TechCorp</h1>
-            <p className="text-sm font-medium text-gray-500 dark:text-gray-400 tracking-wider uppercase mt-1">Visitor Management</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white leading-none">Kosmos Energy VMS</h1>
+            <p className="text-sm font-medium text-gray-500 dark:text-gray-400 tracking-wider uppercase mt-1">powered Vitotek Systems</p>
           </div>
         </div>
         <div className="text-right flex items-center gap-4">
@@ -190,7 +187,7 @@ const CheckInForm: React.FC<CheckInFormProps> = ({ onComplete }) => {
 
       <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors">
         <div className="text-center pt-10 pb-6 border-b border-gray-100 dark:border-gray-700">
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Welcome to TechCorp</h2>
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Welcome to Kosmos Energy</h2>
           <p className="text-gray-500 dark:text-gray-400 text-lg">Please provide your information to check in for your visit.</p>
 
           <div className="mt-8 flex justify-center gap-4">
@@ -410,15 +407,9 @@ const CheckInForm: React.FC<CheckInFormProps> = ({ onComplete }) => {
               </label>
             </div>
 
-            <div className="mb-8">
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Electronic Signature</label>
-              <SignaturePad onSave={setSignature} />
-              <p className="text-xs text-gray-400 mt-2 italic">By signing, you confirm that you have read and agreed to the Visitor Policy above.</p>
-            </div>
-
             <button
               type="submit"
-              disabled={!agreed || !formData.fullName || !formData.hostName || !signature}
+              disabled={!agreed || !formData.fullName || !formData.hostName}
               className="w-full bg-brand-600 hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-lg font-bold py-4 rounded-xl shadow-lg shadow-brand-200 dark:shadow-none flex items-center justify-center gap-2 transition transform active:scale-[0.99]"
             >
               Check In Now <ArrowRight className="h-6 w-6" />
@@ -428,7 +419,7 @@ const CheckInForm: React.FC<CheckInFormProps> = ({ onComplete }) => {
       </div>
 
       <div className="text-center mt-8 text-gray-400 dark:text-gray-600 text-sm">
-        © 2023 TechCorp Visitor Management System. All rights reserved.<br />
+        © 2026 Kosmos Energy VMS powered Vitotek Systems. All rights reserved.<br />
         Kiosk Station: REC-FRONT-01 • v4.2.1
       </div>
     </div>

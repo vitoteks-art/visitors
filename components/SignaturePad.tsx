@@ -11,6 +11,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({ onSave, defaultValue }) => 
     const [isDrawing, setIsDrawing] = useState(false);
     const [hasSignature, setHasSignature] = useState(false);
     const lastPos = useRef({ x: 0, y: 0 });
+    const dprRef = useRef<number>(1);
 
     useEffect(() => {
         const handleResize = () => {
@@ -21,19 +22,27 @@ const SignaturePad: React.FC<SignaturePadProps> = ({ onSave, defaultValue }) => 
 
             const rect = canvas.getBoundingClientRect();
             const dpr = window.devicePixelRatio || 1;
+            dprRef.current = dpr;
 
-            // Step 1: Save existing content if any
+            // Step 1: Save existing content if any (in CSS pixels)
             let tempImage: string | null = null;
             if (canvas.width > 0 && canvas.height > 0) {
-                tempImage = canvas.toDataURL();
+                try {
+                    tempImage = canvas.toDataURL('image/png');
+                } catch {
+                    tempImage = null;
+                }
             }
 
-            // Step 2: Update internal resolution
-            canvas.width = rect.width * dpr;
-            canvas.height = rect.height * dpr;
-            ctx.scale(dpr, dpr);
+            // Step 2: Update internal resolution (device pixels)
+            canvas.width = Math.max(1, Math.floor(rect.width * dpr));
+            canvas.height = Math.max(1, Math.floor(rect.height * dpr));
 
-            // Step 3: Re-apply styles (as scale/resize clears them)
+            // IMPORTANT: reset transform before applying DPR transform (prevents cumulative scaling)
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+            // Step 3: Re-apply styles (as resize clears them)
             ctx.strokeStyle = '#1e293b';
             ctx.lineWidth = 2.5;
             ctx.lineCap = 'round';
@@ -42,7 +51,10 @@ const SignaturePad: React.FC<SignaturePadProps> = ({ onSave, defaultValue }) => 
             // Step 4: Restore content if it existed
             if (tempImage) {
                 const img = new Image();
-                img.onload = () => ctx.drawImage(img, 0, 0, rect.width, rect.height);
+                img.onload = () => {
+                    // draw into CSS pixel space (because of DPR transform)
+                    ctx.drawImage(img, 0, 0, rect.width, rect.height);
+                };
                 img.src = tempImage;
             }
         };
@@ -61,6 +73,12 @@ const SignaturePad: React.FC<SignaturePadProps> = ({ onSave, defaultValue }) => 
             if (!ctx || !ctx.canvas.width) return;
 
             const rect = canvas.getBoundingClientRect();
+            const dpr = dprRef.current || (window.devicePixelRatio || 1);
+
+            // Ensure transform is correct before drawing defaultValue
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
             const img = new Image();
             img.onload = () => ctx.drawImage(img, 0, 0, rect.width, rect.height);
             img.src = defaultValue;
@@ -93,8 +111,8 @@ const SignaturePad: React.FC<SignaturePadProps> = ({ onSave, defaultValue }) => 
         lastPos.current = pos;
         setIsDrawing(true);
 
-        // Handle touch prevention
-        if (e.cancelable) e.preventDefault();
+        // Prevent page scroll while signing (especially on mobile)
+        if ('touches' in e && e.cancelable) e.preventDefault();
     };
 
     const stopDrawing = () => {
@@ -132,7 +150,14 @@ const SignaturePad: React.FC<SignaturePadProps> = ({ onSave, defaultValue }) => 
         if (canvas) {
             const ctx = canvas.getContext('2d');
             if (ctx) {
+                // Clear in device pixel space
+                ctx.setTransform(1, 0, 0, 1, 0, 0);
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // Restore DPR transform for continued drawing
+                const dpr = dprRef.current || (window.devicePixelRatio || 1);
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
                 onSave(null);
                 setHasSignature(false);
             }

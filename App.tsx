@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, UserPlus, Users, Building2, Mail, Menu, X, Bell, LogOut, Settings, Sun, Moon, CheckCircle, XCircle } from 'lucide-react';
+import { LayoutDashboard, UserPlus, Users, Mail, Menu, X, Bell, LogOut, Settings, Sun, Moon, CheckCircle, XCircle } from 'lucide-react';
 import { ViewState, Notification } from './types';
 import { checkNotifications } from './services/storage';
 import CheckInForm from './components/CheckInForm';
@@ -181,8 +181,8 @@ const MainApp: React.FC = () => {
       <aside className={`fixed lg:static inset-y-0 left-0 z-30 w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transform transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
         <div className="p-6 flex flex-col h-full">
           <div className="flex items-center gap-3 mb-8">
-            <div className="bg-brand-600 p-2 rounded-lg">
-              <Building2 className="h-6 w-6 text-white" />
+            <div className="bg-white p-2 rounded-lg border border-gray-200">
+              <img src="/logo.jpg" alt="Logo" className="h-8 w-auto" />
             </div>
             <div>
               <h1 className="text-lg font-bold text-gray-900 dark:text-white leading-tight">Kosmos Energy VMS</h1>

@@ -182,7 +182,7 @@ const MainApp: React.FC = () => {
         <div className="p-6 flex flex-col h-full">
           <div className="flex items-center gap-3 mb-8">
             <div className="bg-white p-2 rounded-lg border border-gray-200">
-              <img src="/logo.jpg" alt="Logo" className="h-8 w-auto" />
+              <img src="/logo.png" alt="Logo" className="h-8 w-auto" />
             </div>
             <div>
               <h1 className="text-lg font-bold text-gray-900 dark:text-white leading-tight">Kosmos Energy VMS</h1>

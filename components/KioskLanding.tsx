@@ -59,16 +59,16 @@ const KioskLanding: React.FC<KioskLandingProps> = ({ onSelectAction }) => {
                 </div>
 
                 {/* Footer Info */}
-                <div className="pt-12 flex flex-col md:flex-row items-center justify-center gap-8 text-gray-400 dark:text-gray-500 animate-in fade-in duration-1000 delay-500">
+                <div className="pt-12 flex flex-col md:flex-row items-center justify-center gap-8 text-gray-500 dark:text-gray-400 animate-in fade-in duration-1000 delay-500">
                     <div className="flex items-center gap-2">
                         <Clock className="h-5 w-5" />
-                        <span className="font-bold text-gray-600 dark:text-gray-300">{currentTime}</span>
-                        <span className="opacity-50">|</span>
-                        <span>{currentDate}</span>
+                        <span className="font-bold text-gray-700 dark:text-gray-200">{currentTime}</span>
+                        <span className="opacity-40">|</span>
+                        <span className="text-gray-600 dark:text-gray-300">{currentDate}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                        <ShieldCheck className="h-5 w-5 text-green-500" />
-                        <span>Secure Entry & Exit</span>
+                        <ShieldCheck className="h-5 w-5 text-green-600 dark:text-green-400" />
+                        <span className="font-semibold text-gray-700 dark:text-gray-200">Secure Entry & Exit</span>
                     </div>
                 </div>
             </div>

@@ -180,14 +180,17 @@ const MainApp: React.FC = () => {
 
       <aside className={`fixed lg:static inset-y-0 left-0 z-30 w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transform transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
         <div className="p-6 flex flex-col h-full">
-          <div className="flex items-center gap-3 mb-8">
-            <div className="bg-white p-2 rounded-lg border border-gray-200">
-              <img src="/logo.png" alt="Logo" className="h-8 w-auto" />
+          <div className="mb-8">
+            <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-900/40 p-3">
+              <img
+                src="/logo.png"
+                alt="Kosmos Energy"
+                className="w-full h-auto max-h-14 object-contain"
+              />
             </div>
-            <div>
-              <h1 className="text-lg font-bold text-gray-900 dark:text-white leading-tight">Kosmos Energy VMS</h1>
-              <p className="text-xs text-gray-500 dark:text-gray-400 leading-tight">powered Vitotek Systems</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Reception Pro</p>
+            <div className="mt-3">
+              <h1 className="text-sm font-extrabold text-gray-900 dark:text-white leading-tight">Kosmos Energy VMS</h1>
+              <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-tight">powered Vitotek Systems</p>
             </div>
           </div>
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { UserPlus, LogOut, Building2, Clock, ShieldCheck } from 'lucide-react';
+import { UserPlus, LogOut, Clock, ShieldCheck } from 'lucide-react';
 
 interface KioskLandingProps {
     onSelectAction: (action: 'check-in' | 'check-out') => void;
@@ -14,8 +14,12 @@ const KioskLanding: React.FC<KioskLandingProps> = ({ onSelectAction }) => {
             <div className="max-w-4xl w-full text-center space-y-12">
                 {/* Branding */}
                 <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                    <div className="bg-brand-600 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto shadow-xl shadow-brand-200 dark:shadow-none">
-                        <Building2 className="h-10 w-10 text-white" />
+                    <div className="bg-brand-600 rounded-3xl px-8 py-6 flex items-center justify-center mx-auto shadow-xl shadow-brand-200 dark:shadow-none w-fit">
+                        <img
+                            src="/kosmos_logo_white.png"
+                            alt="Kosmos Energy"
+                            className="h-16 md:h-20 w-auto object-contain"
+                        />
                     </div>
                     <h1 className="text-5xl font-black text-gray-900 dark:text-white tracking-tight">
                         Welcome to <span className="text-brand-600">Kosmos Energy</span>

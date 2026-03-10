@@ -16,11 +16,22 @@ class Database {
     private $password = 'PQ(_dP+b0GVYqtNQ';
 
     public function __construct() {
-        $isLocal = ($_SERVER['HTTP_HOST'] === 'localhost' || $_SERVER['HTTP_HOST'] === '127.0.0.1' || strpos($_SERVER['HTTP_HOST'], 'localhost:') === 0);
+        $host = $_SERVER['HTTP_HOST'] ?? '';
+        $serverName = $_SERVER['SERVER_NAME'] ?? '';
+        $useMysql = getenv('USE_MYSQL') === '1';
+        $isIpHost = (bool) preg_match('/^\d{1,3}(?:\.\d{1,3}){3}(?::\d+)?$/', $host);
+        $isLocal = (
+            $host === 'localhost' ||
+            $host === '127.0.0.1' ||
+            strpos($host, 'localhost:') === 0 ||
+            $serverName === 'localhost' ||
+            $serverName === '127.0.0.1' ||
+            $isIpHost
+        );
 
         try {
-            if ($isLocal) {
-                // Use SQLite for local development
+            if ($isLocal && !$useMysql) {
+                // Use SQLite for local/VPS development unless USE_MYSQL=1 is explicitly set
                 $this->pdo = new PDO('sqlite:database.sqlite');
                 $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
                 $this->initStats(); // Auto-create tables for local ease
